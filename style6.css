@@ -1,0 +1,147 @@
+
+body {
+    background-color: rgba(19,18,23);
+    overflow: hidden;
+}
+* {
+    font-family: 'Lexend Deca', sans-serif;
+}
+
+
+.container {
+    margin: auto;
+    margin-top: 5%;
+    padding: 30px;
+    height: auto;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    background-color: rgba(24,23,28);
+    border-radius: 1rem;
+    width: 400;
+}
+
+
+i {
+    position: inherit;
+}
+
+.style2 {
+    font-size: 48px;
+    color: rgba(226,225,241);
+    margin-left: 1%;
+}
+
+.style3 {
+    font-size: 48px;
+    color: rgba(128,93,247);
+}
+
+.headercontainer {
+    display: flex; 
+    float: top;
+}
+
+.inputbox {
+    text-align: left;
+    padding: 5px;
+    padding-top: 10px;
+}
+
+.inputtext {
+    padding: 8px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    border-radius: 1rem;
+    margin-left: -2px;
+}
+
+.inputtext_date {
+    padding: 8px;
+    width: 40%;
+    border: none;
+    text-align: left;
+    border-radius: 1rem;
+    margin-left: -2px;
+}
+
+
+.btn {
+    padding: 15px;
+    margin: auto;
+    border-radius: 1rem;
+    color: rgba(226,225,241);
+    background-color: rgba(128,93,247);
+    border: none;
+    margin-left: 40%;
+    font-size: 14px;
+}
+
+.btn:hover:enabled{
+    -ms-transform: scale(1.1); /* IE 9 */
+    -webkit-transform: scale(1.1); /* Safari 3-8 */
+    transform: scale(1.1); 
+}
+
+input::placeholder {
+    margin-left: 15px;
+}
+
+a {
+    margin-left: 5%s;
+    font-size: 14px;
+    color: rgba(226,225,241);
+    text-decoration: none;
+    padding: 6px;
+    transition: all 0.2s ease-out 0s;
+}
+
+/* unvisited link */
+a:link {
+    color: rgba(226,225,241);
+    text-decoration: none;
+  }
+  
+  /* visited link */
+  a:visited {
+    color: rgba(226,225,241);
+    text-decoration: none;
+  }
+  
+  /* mouse over link */
+  a:hover {
+    color: rgba(226,225,241);
+    background-color: rgba(123,120,137);
+    font-size: 14px;
+    margin-left: 5%;
+    padding: 6px;
+    border-radius: 1rem;
+    cursor: pointer;
+  }
+  
+  /* selected link */
+  a:active {
+    color: rgba(226,225,241);
+    background-color: rgba(123,120,137);
+    font-size: 14px;
+    margin-left: 5%;
+    padding: 6px;
+    border-radius: 1rem;
+    cursor: pointer;
+  }
+  a:focus {
+    color: rgba(226,225,241);
+    background-color: rgba(123,120,137);
+    font-size: 14px;
+    margin-left: 5%;
+    padding: 6px;
+    border-radius: 1rem;
+    cursor: pointer;
+}
+
+h2 {
+    color: rgba(226,225,241);
+}
+
+textarea.storyMessage {
+    width: 100%;
+}
