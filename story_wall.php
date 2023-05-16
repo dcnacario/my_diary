@@ -38,13 +38,6 @@
                 <p class="diary_title">Menu</p>
                 <p><a href="#" onclick="searchBarHidden()"><i class='bx bxs-notepad' ></i> Story </a></p>
                 <p> <a href="#"  onclick="searchBar()"><i class='bx bx-search'></i> Search</a></p>
-                <div>
-                    <form action="story_wall.php" method="post">
-                        <input type="hidden" name="userID" value="<?php echo $userID?>">
-                        <input type="hidden" name="diaryID" value="<?php echo $diaryID?>">
-                        <button type="submit" class="wallBtn">Public Wall</button>
-                    </form>
-                </div>
                 <form action="main.php?userID=<?php echo $userID?>" method="POST">
                     <button type="submit" name="backButton" class="btn_back"><i class='bx bx-arrow-back'></i> Back</button>
                 </form>
@@ -66,7 +59,7 @@
                         <th>Action</th>
                     </tr>
                     <?php 
-                    require('fetchStory.php');
+                    require('fetchStoryWall.php');
                     if (mysqli_num_rows($resultFetchStory) > 0) {
                         while($storyResult = mysqli_fetch_array($resultFetchStory)) {
                     ?>

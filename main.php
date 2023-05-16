@@ -44,7 +44,7 @@
                 </div>
             </div>
             <div class="search_container" id="search">
-                <form action="searchDiary.php?diaryID=<?php echo  $fetchDiarySearchArray['diary_id']?>" method="POST">
+                <form action="searchDiary.php?diaryID=<?php echo  $fetchDiarySearchArray[0]['diary_id']?>" method="POST">
                     <input type="hidden" name="userID" value="<?php echo $userID?>">
                     <input type="text" name="searchbar" id="searchbar" class="input">
                     <Button type="submit" name="searchBtn" class="searchbtn"><i class='bx bx-search'></i></Button>

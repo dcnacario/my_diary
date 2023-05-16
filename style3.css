@@ -44,7 +44,7 @@ body {
 .search_container {
     position: absolute;
     display: flex;
-    top: 29%;
+    top: 20%;
     left: 45%;
     visibility: hidden;
     transition: all 0.2s ease-out 2s;

@@ -336,4 +336,11 @@ table.diary {
     margin-top: -15%;
 }
 
+.wallBtn {
+    padding: 10px;
+    margin: auto;
+    border-radius: 1rem;
+    outline: none;
+}
+
 

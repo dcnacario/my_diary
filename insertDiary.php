@@ -11,6 +11,6 @@
 
     $lastInsertID = mysqli_insert_id($conn);
 
-    header("Location: new_story.php?diaryID=$lastInsertID");
+    header("Location: new_story.php?diaryID=$lastInsertID&userID=$userID");
 
 ?>
