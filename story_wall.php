@@ -2,6 +2,7 @@
     require('local_setting.php');
     $diaryID = $_REQUEST['diaryID'];
     $userID = $_REQUEST['userID'];
+    $storyID = $_REQUEST['storyID'];
 
     $fetchStorySearchArray = array();
 
@@ -14,6 +15,47 @@
     while($fetchStorySearchResult = mysqli_fetch_array($resultFetchStorySearch)){
          $fetchStorySearchArray['story_id'] = $fetchStorySearchResult['story_id'];
     }
+
+    $userReaction = getUserReaction($conn,$storyID);
+
+    if(isset($_POST['reaction'])){
+        $reaction = $_POST['reaction'];
+
+        if($userReaction){
+            updateReaction($conn,$storyID,$reaction);
+        }
+        else{
+            updateReaction($conn,$storyID,$reaction);
+        }
+        header("Location: story_wall.php");
+        exit();
+    }
+
+    function getUserReaction($conn,$storyID){
+        $userID = $_REQUEST['userID'];
+        $sql = "SELECT reactions FROM story WHERE user_id = $userID AND story_id = $storyID";
+        $result = mysqli_query($conn,$sql);
+
+        if($result && mysqli_num_rows($result) > 0){
+            while($row = mysqli_fetch_array($result)){
+                return $row['reaction'];
+            }
+        }
+        return null;
+    }
+
+    function updateReaction($conn,$storyID,$reaction){
+            $userID = $_REQUEST['userID'];
+            $sql = "UPDATE reactions SET reaction = '$reaction' WHERE user_id = $userID AND story_id = $storyID";
+            $result = mysqli_query($conn,$sql);
+    }
+
+    function insertReaction($conn,$storyID,$reaction){
+        $userID = $_REQUEST['userID'];
+        $sql = "INSERT INTO reactions (user_id,story_id,reaction) VALUES ($userID,$storyID,'$reaction')";
+        $result = mysqli_query($conn,$sql);
+    }
+    $conn->close();
 ?>
 <html>
     <head>
