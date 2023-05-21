@@ -59,7 +59,7 @@ function updateReaction($conn, $storyID, $reaction)
 function insertReaction($conn, $storyID, $reaction)
 {
     $userID = $_REQUEST['userID'];
-    $sql = "INSERT INTO reactions (user_id,story_id,reaction) VALUES ('$userID','$storyID','$reaction')";
+    $sql = "INSERT INTO reactions (user_id, story_id, reaction) VALUES ('$userID', '$storyID', '$reaction')";
     $result = mysqli_query($conn, $sql);
 }
 
