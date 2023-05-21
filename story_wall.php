@@ -10,7 +10,7 @@ $queryFetchStorySearch = "SELECT * FROM story";
 $resultFetchStorySearch = mysqli_query($conn, $queryFetchStorySearch);
 
 while ($fetchStorySearchResult = mysqli_fetch_array($resultFetchStorySearch)) {
-    $fetchStorySearchArray['story_id'] = $fetchStorySearchResult['story_id'];
+    $fetchStorySearchArray[] = $fetchStorySearchResult['story_id'];
 }
 
 $userReaction = getUserReaction($conn, $storyID);
@@ -24,7 +24,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             insertReaction($conn, $storyID, $reaction);
         }
-        header("Location: story_wall.php?storyID=$storyID&userID=$userID");
+
+        // Instead of redirecting, you can return a JSON response
+        $response = array(
+            'success' => true,
+            'message' => 'Reaction updated successfully'
+        );
+        echo json_encode($response);
         exit();
     }
 }
@@ -59,6 +65,7 @@ function insertReaction($conn, $storyID, $reaction)
 
 $conn->close();
 ?>
+
 <html>
 <head>
     <meta charset='utf-8'>
@@ -76,9 +83,6 @@ $conn->close();
     </div>
     <div class="container">
         <div class="control_container">
-            <form method="post" action="new_story.php?diaryID=<?php echo $diaryID ?>&userID=<?php echo $userID ?>">
-                <button type="submit" class="btn" id="btnDiary"><i class='bx bx-notepad'></i>Create Story</button>
-            </form>
             <p class="diary_title">Menu</p>
             <p><a href="#" onclick="searchBarHidden()"><i class='bx bxs-notepad'></i> Story </a></p>
             <p> <a href="#" onclick="searchBar()"><i class='bx bx-search'></i> Search</a></p>
@@ -114,13 +118,6 @@ $conn->close();
                             <td><?php echo $storyResult['story_message'] ?></td>
                             <td>
                                 <div class="group_right">
-                                    <form method="POST" action="deleteStory.php?storyID=<?php echo $storyResult['story_id'] ?>">
-                                        <input type="hidden" name="userID" value="<?php echo $userID ?>">
-                                        <input type="hidden" name="diaryID" value="<?php echo $diaryID ?>">
-                                        <button type="submit" class="btn_right_delete">
-                                            <i class='bx bxs-trash'></i>
-                                        </button>
-                                    </form>
                                     <form method="POST" action="view_story.php?storyID=<?php echo $storyResult['story_id'] ?>">
                                         <input type="hidden" name="diaryID" value="<?php echo $diaryID ?>">
                                         <input type="hidden" name="userID" value="<?php echo $userID ?>">
@@ -132,24 +129,22 @@ $conn->close();
                             </td>
                             <td>
                                 <div>
-                                    <form method="POST" action="story_wall.php?diaryID=<?php echo $diaryID ?>&userID=<?php echo $userID ?>">
-                                        <input type="hidden" name="reaction" value="like">
-                                        <input type="hidden" name="userID" value="<?php echo $userID ?>">
-                                        <input type="hidden" name="diaryID" value="<?php echo $diaryID ?>">
-                                        <input type="hidden" name="storyID" value="<?php echo $storyResult['story_id'] ?>">
-                                        <button type="submit" <?php if ($userReaction === 'like') echo 'disabled'; ?>><i
-                                                    class='bx bx-like'></i></button>
-                                    </form>
+                                <form class="reaction-form">
+                                    <input type="hidden" name="reaction" value="like">
+                                    <input type="hidden" name="userID" value="<?php echo $userID ?>">
+                                    <input type="hidden" name="diaryID" value="<?php echo $diaryID ?>">
+                                    <input type="hidden" name="storyID" value="<?php echo $storyResult['story_id'] ?>">
+                                    <button type="submit" <?php if ($userReaction === 'like') echo 'disabled'; ?>><i class='bx bx-like'></i></button>
+                                </form>
                                 </div>
                                 <div>
-                                    <form method="POST" action="story_wall.php?diaryID=<?php echo $diaryID ?>&userID=<?php echo $userID ?>">
-                                        <input type="hidden" name="reaction" value="heart">
-                                        <input type="hidden" name="userID" value="<?php echo $userID ?>">
-                                        <input type="hidden" name="diaryID" value="<?php echo $diaryID ?>">
-                                        <input type="hidden" name="storyID" value="<?php echo $storyResult['story_id'] ?>">
-                                        <button type="submit" <?php if ($userReaction === 'heart') echo 'disabled'; ?>><i
-                                                    class='bx bx-heart'></i></button>
-                                    </form>
+                                <form class="reaction-form">
+                                    <input type="hidden" name="reaction" value="heart">
+                                    <input type="hidden" name="userID" value="<?php echo $userID ?>">
+                                    <input type="hidden" name="diaryID" value="<?php echo $diaryID ?>">
+                                    <input type="hidden" name="storyID" value="<?php echo $storyResult['story_id'] ?>">
+                                    <button type="submit" <?php if ($userReaction === 'heart') echo 'disabled'; ?>><i class='bx bx-heart'></i></button>
+                                </form>
                                 </div>
                             </td>
                         </tr>
@@ -160,6 +155,50 @@ $conn->close();
             </table>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+        $('.reaction-form').submit(function(e) {
+            e.preventDefault();
+
+            // Get the form data
+            var formData = $(this).serialize();
+
+            // Disable all reaction buttons
+            var reactionButtons = $(this).find('button[type="submit"]');
+            reactionButtons.prop('disabled', true);
+
+            // Enable the clicked button
+            var clickedButton = $(this).find('button[type="submit"]:focus');
+            clickedButton.prop('disabled', false);
+
+            // Send an AJAX request to update the reaction
+            $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                // Handle the response
+                if (response.success) {
+                alert(response.message);
+                // Perform any necessary UI updates
+                // ...
+                } else {
+                alert('Failed to update reaction.');
+                // Re-enable all reaction buttons if there was an error
+                reactionButtons.prop('disabled', false);
+                }
+            },
+            error: function() {
+                alert('An error occurred while updating the reaction.');
+                // Re-enable all reaction buttons if there was an error
+                reactionButtons.prop('disabled', false);
+            }
+            });
+        });
+        });
+    </script>
 </body>
 <script rel="text/javascript" src="search.js"></script>
 
