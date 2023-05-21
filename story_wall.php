@@ -164,13 +164,16 @@ $conn->close();
             // Get the form data
             var formData = $(this).serialize();
 
-            // Disable all reaction buttons
-            var reactionButtons = $(this).find('button[type="submit"]');
-            reactionButtons.prop('disabled', true);
-
-            // Enable the clicked button
+            // Get the clicked button and its value
             var clickedButton = $(this).find('button[type="submit"]:focus');
-            clickedButton.prop('disabled', false);
+            var clickedValue = clickedButton.val();
+
+            // Enable all reaction buttons
+            var reactionButtons = $(this).find('button[type="submit"]');
+            reactionButtons.prop('disabled', false);
+
+            // Disable the clicked button
+            clickedButton.prop('disabled', true);
 
             // Send an AJAX request to update the reaction
             $.ajax({
