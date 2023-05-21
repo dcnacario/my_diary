@@ -42,6 +42,7 @@
                     <form action="story_wall.php" method="post">
                         <input type="hidden" name="userID" value="<?php echo $userID?>">
                         <input type="hidden" name="diaryID" value="<?php echo $diaryID?>">
+                        <input type="hidden" name="storyID" value="<?php echo $storyID?>">
                         <button type="submit" class="wallBtn">Public Wall</button>
                     </form>
                 </div>
