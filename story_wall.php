@@ -25,14 +25,18 @@
                 insertReaction($conn, $storyID, $reaction);
             }
 
-            // Instead of redirecting, you can return a JSON response
-            $response = array(
-                'success' => true,
-                'message' => 'Reaction updated successfully'
-            );
-            echo json_encode($response);
-            exit();
-        }
+        // Instead of redirecting, you can return a JSON response with updated reaction counts
+        $response = array(
+            'success' => true,
+            'message' => 'Reaction updated successfully',
+            'storyID' => $storyID,
+            'likeCount' => getReactionCount($conn, $storyID, 'like'),
+            'heartCount' => getReactionCount($conn, $storyID, 'heart')
+        );
+        echo json_encode($response);
+        exit();
+       
+    }
     }
 
     function getUserReaction($conn, $storyID)
@@ -78,16 +82,16 @@
 $conn->close();
 ?>
 <html>
-<head>
-    <meta charset='utf-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="style5.css">
-</head>
-<body>
+    <head>
+        <meta charset='utf-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="style5.css">
+    </head>
+    <body>
     <div class="headercontainer">
         <h2 class="style2">my.</h2>
         <h2 class="style3">diary</h2>
@@ -156,10 +160,7 @@ $conn->close();
                                     <input type="hidden" name="diaryID" value="<?php echo $diaryID ?>">
                                     <input type="hidden" name="storyID" value="<?php echo $storyResult['story_id'] ?>">
                                     <button type="submit" <?php if ($userReaction === 'like') echo 'disabled'; ?>><i class='bx bx-like'></i></button>
-                                    <?php
-                                    $heartCount = getReactionCount($conn, $storyResult['story_id'], 'like');
-                                    ?>
-                                    <span><?php echo $heartCount; ?> likes</span>
+                                    <span id="likeCount_<?php echo $storyResult['story_id']; ?>"><?php echo getReactionCount($conn, $storyResult['story_id'], 'like'); ?></span>
                                 </form>
                                 </div>
                                 <div>
@@ -172,7 +173,7 @@ $conn->close();
                                     <?php
                                     $heartCount = getReactionCount($conn, $storyResult['story_id'], 'heart');
                                     ?>
-                                    <span><?php echo $heartCount; ?> hearts</span>
+                                    <span id="heartCount_<?php echo $storyResult['story_id']; ?>"><?php echo getReactionCount($conn, $storyResult['story_id'], 'heart'); ?></span>
                                 </form>
                                 </div>
                             </td>
@@ -185,38 +186,76 @@ $conn->close();
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-  $(document).ready(function() {
-    $('.reaction-form').submit(function(e) {
-      e.preventDefault();
+    <script>
+    $(document).ready(function() {
+        // Update the reaction counts on page load
+        updateAllReactionCounts();
 
-      // Get the form data
-      var formData = $(this).serialize();
+        $('.reaction-form').submit(function(e) {
+            e.preventDefault();
 
-      // Send an AJAX request to update the reaction
-      $.ajax({
-        url: $(this).attr('action'),
-        type: 'POST',
-        data: formData,
-        dataType: 'json',
-        success: function(response) {
-          // Handle the response
-          if (response.success) {
-            alert(response.message);
-            // Perform any necessary UI updates
-            // ...
-          } else {
-            alert('Failed to update reaction.');
-          }
-        },
-        error: function() {
-          alert('An error occurred while updating the reaction.');
-        }
-      });
-    });
-  });
-</script>
-</body>
+            // Get the form data
+            var formData = $(this).serialize();
+
+            // Send an AJAX request to update the reaction
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    // Handle the response
+                    if (response.success) {
+                        // Update the reaction counts
+                        updateReactionCounts(response.storyID, response.likeCount, response.heartCount);
+                    } else {
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while updating the reaction.');
+                }
+            });
+        });
+
+        function updateAllReactionCounts() {
+            $('.reaction-form').each(function() {
+                var formData = $(this).serialize();
+                var storyID = $(this).find('input[name="storyID"]').val();
+
+                // Send an AJAX request to get the reaction counts
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        // Handle the response
+                        if (response.success) {
+                            // Update the reaction counts
+                            updateReactionCounts(response.storyID, response.likeCount, response.heartCount);
+                        } else {
+                            alert('Failed to fetch reaction counts for story ID: ' + storyID);
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred while fetching the reaction counts for story ID: ' + storyID);
+                    }
+                });
+            });
+            }
+
+            function updateReactionCounts(storyID, likeCount, heartCount) {
+                // Update the like count
+                $('#likeCount_' + storyID).text(likeCount);
+
+                // Update the heart count
+                $('#heartCount_' + storyID).text(heartCount);
+            }
+        });
+    </script>
+
+
+    </body>
 <script rel="text/javascript" src="search.js"></script>
 
 </html>
