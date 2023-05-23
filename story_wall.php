@@ -2,6 +2,7 @@
     require('local_setting.php');
     $userID = $_REQUEST['userID'];
     $storyID = $_REQUEST['storyID'];
+    $diaryID = $_REQUEST['diaryID'];
 
     $fetchStorySearchArray = array();
 
@@ -136,13 +137,6 @@ $conn->close();
                             <td><?php echo $storyResult['story_message'] ?></td>
                             <td>
                                 <div class="group_right">
-                                    <form method="POST" action="deleteStory.php?storyID=<?php echo $storyResult['story_id'] ?>">
-                                        <input type="hidden" name="userID" value="<?php echo $userID ?>">
-                                        <input type="hidden" name="diaryID" value="<?php echo $diaryID ?>">
-                                        <button type="submit" class="btn_right_delete">
-                                            <i class='bx bxs-trash'></i>
-                                        </button>
-                                    </form>
                                     <form method="POST" action="view_story.php?storyID=<?php echo $storyResult['story_id'] ?>">
                                         <input type="hidden" name="diaryID" value="<?php echo $diaryID ?>">
                                         <input type="hidden" name="userID" value="<?php echo $userID ?>">
@@ -188,70 +182,42 @@ $conn->close();
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
     $(document).ready(function() {
-        // Update the reaction counts on page load
-        updateAllReactionCounts();
+  $('.reaction-form').submit(function(event) {
+    event.preventDefault(); // Prevent the default form submission
 
-        $('.reaction-form').submit(function(e) {
-            e.preventDefault();
+    var formData = $(this).serialize();
+    var storyID = $(this).find('input[name="storyID"]').val();
 
-            // Get the form data
-            var formData = $(this).serialize();
+    // Send an AJAX request to update the reaction
+    $.ajax({
+      url: $(this).attr('action'), // Update the URL to the correct PHP file
+      type: 'POST',
+      data: formData,
+      dataType: 'json',
+      success: function(response) {
+        // Handle the response
+        if (response.success) {
+          // Update the reaction counts
+          updateReactionCounts(response.storyID, response.likeCount, response.heartCount);
+        } else {
+          alert('Failed to update reaction for story ID: ' + storyID);
+        }
+      },
+      error: function() {
+        alert('An error occurred while updating the reaction for story ID: ' + storyID);
+      }
+    });
+  });
 
-            // Send an AJAX request to update the reaction
-            $.ajax({
-                url: $(this).attr('action'),
-                type: 'POST',
-                data: formData,
-                dataType: 'json',
-                success: function(response) {
-                    // Handle the response
-                    if (response.success) {
-                        // Update the reaction counts
-                        updateReactionCounts(response.storyID, response.likeCount, response.heartCount);
-                    } else {
-                    }
-                },
-                error: function() {
-                    alert('An error occurred while updating the reaction.');
-                }
-            });
-        });
+  function updateReactionCounts(storyID, likeCount, heartCount) {
+    // Update the like count
+    $('#likeCount_' + storyID).text(likeCount);
 
-        function updateAllReactionCounts() {
-            $('.reaction-form').each(function() {
-                var formData = $(this).serialize();
-                var storyID = $(this).find('input[name="storyID"]').val();
+    // Update the heart count
+    $('#heartCount_' + storyID).text(heartCount);
+  }
+});
 
-                // Send an AJAX request to get the reaction counts
-                $.ajax({
-                    url: $(this).attr('action'),
-                    type: 'POST',
-                    data: formData,
-                    dataType: 'json',
-                    success: function(response) {
-                        // Handle the response
-                        if (response.success) {
-                            // Update the reaction counts
-                            updateReactionCounts(response.storyID, response.likeCount, response.heartCount);
-                        } else {
-                            alert('Failed to fetch reaction counts for story ID: ' + storyID);
-                        }
-                    },
-                    error: function() {
-                        alert('An error occurred while fetching the reaction counts for story ID: ' + storyID);
-                    }
-                });
-            });
-            }
-
-            function updateReactionCounts(storyID, likeCount, heartCount) {
-                // Update the like count
-                $('#likeCount_' + storyID).text(likeCount);
-
-                // Update the heart count
-                $('#heartCount_' + storyID).text(heartCount);
-            }
-        });
     </script>
 
 

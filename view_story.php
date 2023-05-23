@@ -1,8 +1,8 @@
 <?php 
     require('local_setting.php');
-    $storyID = $_GET['storyID'];
-    $diaryID = $_POST['diaryID'];
-    $userID = $_POST['userID'];
+    $storyID = $_REQUEST['storyID'];
+    $diaryID = $_REQUEST['diaryID'];
+    $userID = $_REQUEST['userID'];
     $storyDetails = array();
     $queryFetchStory = "SELECT * FROM story 
         INNER JOIN diary ON story.diary_id = diary.diary_id 
