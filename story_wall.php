@@ -1,71 +1,82 @@
 <?php
-require('local_setting.php');
-$userID = $_REQUEST['userID'];
-$storyID = $_REQUEST['storyID'];
-
-$fetchStorySearchArray = array();
-
-$queryFetchStorySearch = "SELECT * FROM story";
-
-$resultFetchStorySearch = mysqli_query($conn, $queryFetchStorySearch);
-
-while ($fetchStorySearchResult = mysqli_fetch_array($resultFetchStorySearch)) {
-    $fetchStorySearchArray[] = $fetchStorySearchResult['story_id'];
-}
-
-$userReaction = getUserReaction($conn, $storyID);
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['reaction'])) {
-        $reaction = $_POST['reaction'];
-
-        if ($userReaction) {
-            updateReaction($conn, $storyID, $reaction);
-        } else {
-            insertReaction($conn, $storyID, $reaction);
-        }
-
-        // Instead of redirecting, you can return a JSON response
-        $response = array(
-            'success' => true,
-            'message' => 'Reaction updated successfully'
-        );
-        echo json_encode($response);
-        exit();
-    }
-}
-
-function getUserReaction($conn, $storyID)
-{
+    require('local_setting.php');
     $userID = $_REQUEST['userID'];
-    $sql = "SELECT reaction FROM reactions WHERE user_id = '{$userID}' AND story_id = '{$storyID}'";
-    $result = mysqli_query($conn, $sql);
+    $storyID = $_REQUEST['storyID'];
 
-    if ($result && mysqli_num_rows($result) > 0) {
-        while ($row = mysqli_fetch_array($result)) {
-            return $row['reaction'];
+    $fetchStorySearchArray = array();
+
+    $queryFetchStorySearch = "SELECT * FROM story";
+
+    $resultFetchStorySearch = mysqli_query($conn, $queryFetchStorySearch);
+
+    while ($fetchStorySearchResult = mysqli_fetch_array($resultFetchStorySearch)) {
+        $fetchStorySearchArray[] = $fetchStorySearchResult['story_id'];
+    }
+
+    $userReaction = getUserReaction($conn, $storyID);
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_POST['reaction'])) {
+            $reaction = $_POST['reaction'];
+
+            if ($userReaction) {
+                updateReaction($conn, $storyID, $reaction);
+            } else {
+                insertReaction($conn, $storyID, $reaction);
+            }
+
+            // Instead of redirecting, you can return a JSON response
+            $response = array(
+                'success' => true,
+                'message' => 'Reaction updated successfully'
+            );
+            echo json_encode($response);
+            exit();
         }
     }
-    return null;
-}
 
-function updateReaction($conn, $storyID, $reaction)
-{
-    $userID = $_REQUEST['userID'];
-    $sql = "UPDATE reactions SET reaction = '{$reaction}' WHERE user_id = '{$userID}' AND story_id = '{$storyID}'";
-    $result = mysqli_query($conn, $sql);
-}
+    function getUserReaction($conn, $storyID)
+    {
+        $userID = $_REQUEST['userID'];
+        $sql = "SELECT reaction FROM reactions WHERE user_id = '{$userID}' AND story_id = '{$storyID}'";
+        $result = mysqli_query($conn, $sql);
 
-function insertReaction($conn, $storyID, $reaction)
-{
-    $userID = $_REQUEST['userID'];
-    $sql = "INSERT INTO reactions (user_id, story_id, reaction) VALUES ('$userID', '$storyID', '$reaction')";
-    $result = mysqli_query($conn, $sql);
-}
+        if ($result && mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_array($result)) {
+                return $row['reaction'];
+            }
+        }
+        return null;
+    }
+
+    function updateReaction($conn, $storyID, $reaction)
+    {
+        $userID = $_REQUEST['userID'];
+        $sql = "UPDATE reactions SET reaction = '{$reaction}' WHERE user_id = '{$userID}' AND story_id = '{$storyID}'";
+        $result = mysqli_query($conn, $sql);
+    }
+
+    function insertReaction($conn, $storyID, $reaction)
+    {
+        $userID = $_REQUEST['userID'];
+        $sql = "INSERT INTO reactions (user_id,story_id,reaction) VALUES ('$userID','$storyID','$reaction')";
+        $result = mysqli_query($conn, $sql);
+    }
+    function getReactionCount($conn, $storyID, $reactionType)
+    {
+        $sql = "SELECT COUNT(*) AS count FROM reactions WHERE story_id = '{$storyID}' AND reaction = '{$reactionType}'";
+        $result = mysqli_query($conn, $sql);
+
+        if ($result && mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            return $row['count'];
+        }
+
+        return 0;
+    }
 
 $conn->close();
 ?>
-
 <html>
 <head>
     <meta charset='utf-8'>
@@ -83,6 +94,9 @@ $conn->close();
     </div>
     <div class="container">
         <div class="control_container">
+            <form method="post" action="new_story.php?diaryID=<?php echo $diaryID ?>&userID=<?php echo $userID ?>">
+                <button type="submit" class="btn" id="btnDiary"><i class='bx bx-notepad'></i>Create Story</button>
+            </form>
             <p class="diary_title">Menu</p>
             <p><a href="#" onclick="searchBarHidden()"><i class='bx bxs-notepad'></i> Story </a></p>
             <p> <a href="#" onclick="searchBar()"><i class='bx bx-search'></i> Search</a></p>
@@ -118,6 +132,13 @@ $conn->close();
                             <td><?php echo $storyResult['story_message'] ?></td>
                             <td>
                                 <div class="group_right">
+                                    <form method="POST" action="deleteStory.php?storyID=<?php echo $storyResult['story_id'] ?>">
+                                        <input type="hidden" name="userID" value="<?php echo $userID ?>">
+                                        <input type="hidden" name="diaryID" value="<?php echo $diaryID ?>">
+                                        <button type="submit" class="btn_right_delete">
+                                            <i class='bx bxs-trash'></i>
+                                        </button>
+                                    </form>
                                     <form method="POST" action="view_story.php?storyID=<?php echo $storyResult['story_id'] ?>">
                                         <input type="hidden" name="diaryID" value="<?php echo $diaryID ?>">
                                         <input type="hidden" name="userID" value="<?php echo $userID ?>">
@@ -135,6 +156,10 @@ $conn->close();
                                     <input type="hidden" name="diaryID" value="<?php echo $diaryID ?>">
                                     <input type="hidden" name="storyID" value="<?php echo $storyResult['story_id'] ?>">
                                     <button type="submit" <?php if ($userReaction === 'like') echo 'disabled'; ?>><i class='bx bx-like'></i></button>
+                                    <?php
+                                    $heartCount = getReactionCount($conn, $storyResult['story_id'], 'like');
+                                    ?>
+                                    <span><?php echo $heartCount; ?> likes</span>
                                 </form>
                                 </div>
                                 <div>
@@ -144,6 +169,10 @@ $conn->close();
                                     <input type="hidden" name="diaryID" value="<?php echo $diaryID ?>">
                                     <input type="hidden" name="storyID" value="<?php echo $storyResult['story_id'] ?>">
                                     <button type="submit" <?php if ($userReaction === 'heart') echo 'disabled'; ?>><i class='bx bx-heart'></i></button>
+                                    <?php
+                                    $heartCount = getReactionCount($conn, $storyResult['story_id'], 'heart');
+                                    ?>
+                                    <span><?php echo $heartCount; ?> hearts</span>
                                 </form>
                                 </div>
                             </td>
@@ -156,52 +185,37 @@ $conn->close();
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-        $('.reaction-form').submit(function(e) {
-            e.preventDefault();
+<script>
+  $(document).ready(function() {
+    $('.reaction-form').submit(function(e) {
+      e.preventDefault();
 
-            // Get the form data
-            var formData = $(this).serialize();
+      // Get the form data
+      var formData = $(this).serialize();
 
-            // Get the clicked button and its value
-            var clickedButton = $(this).find('button[type="submit"]:focus');
-            var clickedValue = clickedButton.val();
-
-            // Enable all reaction buttons
-            var reactionButtons = $(this).find('button[type="submit"]');
-            reactionButtons.prop('disabled', false);
-
-            // Disable the clicked button
-            clickedButton.prop('disabled', true);
-
-            // Send an AJAX request to update the reaction
-            $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST',
-            data: formData,
-            dataType: 'json',
-            success: function(response) {
-                // Handle the response
-                if (response.success) {
-                alert(response.message);
-                // Perform any necessary UI updates
-                // ...
-                } else {
-                alert('Failed to update reaction.');
-                // Re-enable all reaction buttons if there was an error
-                reactionButtons.prop('disabled', false);
-                }
-            },
-            error: function() {
-                alert('An error occurred while updating the reaction.');
-                // Re-enable all reaction buttons if there was an error
-                reactionButtons.prop('disabled', false);
-            }
-            });
-        });
-        });
-    </script>
+      // Send an AJAX request to update the reaction
+      $.ajax({
+        url: $(this).attr('action'),
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        success: function(response) {
+          // Handle the response
+          if (response.success) {
+            alert(response.message);
+            // Perform any necessary UI updates
+            // ...
+          } else {
+            alert('Failed to update reaction.');
+          }
+        },
+        error: function() {
+          alert('An error occurred while updating the reaction.');
+        }
+      });
+    });
+  });
+</script>
 </body>
 <script rel="text/javascript" src="search.js"></script>
 
