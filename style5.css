@@ -39,6 +39,7 @@ body {
     float: right;
     margin-right: 12%;
     margin:auto;
+    min-height: 290px;
 }
 
 .search_container {
@@ -341,6 +342,15 @@ table.diary {
     margin: auto;
     border-radius: 1rem;
     outline: none;
+    border: none;
+    background-color: rgba(128,93,247);
+    color: rgba(226,225,241);
+}
+
+.wallBtn:hover {
+    cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    background-color: rgb(135, 100, 252);
 }
 
 
