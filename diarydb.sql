@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 19, 2023 at 02:15 AM
+-- Generation Time: May 24, 2023 at 02:29 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -40,7 +40,36 @@ CREATE TABLE `diary` (
 --
 
 INSERT INTO `diary` (`diary_id`, `date_created`, `diary_name`, `user_id`, `status`) VALUES
-(14, '2023-04-18', 'Danmar', 7, '');
+(25, '2023-05-21', 'Danmar Cornelio Perales Nacario', 9, 'ACTIVE'),
+(26, '2023-05-23', 'Yes, so it can save me time and more convenient', 7, 'ACTIVE'),
+(27, '2023-05-23', 'ding liren', 10, 'ACTIVE');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reactions`
+--
+
+CREATE TABLE `reactions` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `story_id` int(11) NOT NULL,
+  `reaction` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `reactions`
+--
+
+INSERT INTO `reactions` (`id`, `user_id`, `story_id`, `reaction`) VALUES
+(5, 9, 62, 'heart'),
+(45, 7, 63, 'heart'),
+(46, 7, 62, 'like'),
+(47, 10, 64, 'heart'),
+(48, 10, 63, 'heart'),
+(49, 10, 62, 'heart'),
+(50, 9, 64, 'like'),
+(51, 9, 63, 'like');
 
 -- --------------------------------------------------------
 
@@ -60,7 +89,9 @@ CREATE TABLE `story` (
 --
 
 INSERT INTO `story` (`story_id`, `story_date`, `diary_id`, `story_message`) VALUES
-(53, '2023-04-18', 14, '1234');
+(62, '2023-05-21', 25, 'Danmar'),
+(63, '2023-05-23', 26, 'Test'),
+(64, '2023-05-23', 27, 'test');
 
 -- --------------------------------------------------------
 
@@ -82,9 +113,9 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`user_id`, `username`, `password`, `first_name`, `last_name`, `last_logindate`) VALUES
-(7, 'user', 'admin', 'Danmar Cornelio', 'Nacario', '2023-04-18'),
-(9, 'admin', 'user', 'Lester Allen', 'Cabucos', '2023-04-18'),
-(10, 'adminuser', 'adminuser', 'Ram Charles', 'Gumandoy', '2023-04-16');
+(7, 'user', 'admin', 'Danmar Cornelio', 'Nacario', '2023-05-23'),
+(9, 'admin', 'user', 'Lester Allen', 'Cabucos', '2023-05-23'),
+(10, 'adminuser', 'adminuser', 'Ram Charles', 'Gumandoy', '2023-05-23');
 
 --
 -- Indexes for dumped tables
@@ -96,6 +127,14 @@ INSERT INTO `user` (`user_id`, `username`, `password`, `first_name`, `last_name`
 ALTER TABLE `diary`
   ADD PRIMARY KEY (`diary_id`),
   ADD KEY `user_id_fk` (`user_id`);
+
+--
+-- Indexes for table `reactions`
+--
+ALTER TABLE `reactions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_userid` (`user_id`),
+  ADD KEY `fk_storyid` (`story_id`);
 
 --
 -- Indexes for table `story`
@@ -118,13 +157,19 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `diary`
 --
 ALTER TABLE `diary`
-  MODIFY `diary_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `diary_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+
+--
+-- AUTO_INCREMENT for table `reactions`
+--
+ALTER TABLE `reactions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT for table `story`
 --
 ALTER TABLE `story`
-  MODIFY `story_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `story_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `user`
@@ -141,6 +186,13 @@ ALTER TABLE `user`
 --
 ALTER TABLE `diary`
   ADD CONSTRAINT `user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `reactions`
+--
+ALTER TABLE `reactions`
+  ADD CONSTRAINT `fk_storyid` FOREIGN KEY (`story_id`) REFERENCES `story` (`story_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_userid` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `story`
